@@ -23,6 +23,8 @@ CREATE TABLE [University] (
 	idUniversity int NOT NULL,
 	ranking int NOT NULL,
 	campusLife varchar(1000) NOT NULL,
+	--
+	name varchar(100) NOT NULL,
   CONSTRAINT [PK_UNIVERSITY] PRIMARY KEY CLUSTERED
   (
   [idUniversity] ASC
@@ -134,6 +136,8 @@ CREATE TABLE [Program] (
 	creditHours int NOT NULL,
 	feePerCreditHour int NOT NULL,
 	admissionFee int NOT NULL,
+	--
+	subjectCombo VARCHAR(100) NOT NULL,
   CONSTRAINT [PK_PROGRAM] PRIMARY KEY CLUSTERED
   (
   [idProgram] ASC
