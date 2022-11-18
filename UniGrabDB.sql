@@ -393,6 +393,10 @@ insert into [User]
 VALUES (2,'root','root@unigrab.com','123456','root','abcd','system','0.0','0.0',1,0)
 go
 
+go
+insert into [User]
+VALUES (2,'aemon','aemon@unigrab.com','123456','aemon','fatima','user','0.0','0.0',0,0)
+go
 
 --PROCEDURES FOR Use Case 13 Manage Account--
 --drop procedure enable_Account
