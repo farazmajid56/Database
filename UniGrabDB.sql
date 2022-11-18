@@ -401,7 +401,6 @@ go
 --PROCEDURES FOR Use Case 13 Manage Account--
 --drop procedure enable_Account
 CREATE PROCEDURE enable_Account
-@uuid int,
 @uid int,
 @isSuccess int output
 AS
