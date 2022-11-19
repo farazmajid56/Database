@@ -21,13 +21,11 @@ CREATE TABLE [Student] (
 
 )
 CREATE TABLE [University] (
-    name varchar(255) NOT NULL,
+    Namee varchar(255) NOT NULL,
 	phone varchar(11) NOT NULL,
 	idUniversity int NOT NULL,
 	ranking int NOT NULL,
 	campusLife varchar(1000) NOT NULL,
-	--
-	name varchar(100) NOT NULL,
   CONSTRAINT [PK_UNIVERSITY] PRIMARY KEY CLUSTERED
   (
   [idUniversity] ASC
@@ -35,6 +33,7 @@ CREATE TABLE [University] (
 
 )
 GO
+
 CREATE TABLE [User] (
 	idUser integer NOT NULL,
 	userName varchar(30) NOT NULL,
@@ -394,9 +393,8 @@ insert into [User]
 VALUES (2,'root','root@unigrab.com','123456','root','abcd','system','0.0','0.0',1,0)
 go
 
-go
-insert into [User]
-VALUES (2,'aemon','aemon@unigrab.com','123456','aemon','fatima','user','0.0','0.0',0,0)
+insert into [University]
+VALUES ('fast','123456789','1','1','good')
 go
 
 --PROCEDURES FOR Use Case 13 Manage Account--
@@ -608,3 +606,42 @@ END
 
 	-------usecase 10--------
 create procedure viewUniProfile
+@uid int, 
+@success int output,
+@name varchar(255) output ,
+@location varchar(255) output,
+@latitude decimal output,
+@longitude decimal output ,
+@phone varchar(11),
+@ranking int
+as
+BEGIN
+if exists (select * from [User] where  [User].idUser = @uid)
+begin
+		  if exists(select * from [University] where [University].idUniversity=@uid)
+			    begin
+				     select @name=Namee,@location=location,@latitude=latitude,@longitude=longitude,@phone=phone,@ranking=ranking from [User] join [University] on [User].idUser=[University].idUniversity
+					 set @success=1
+				end
+	     else 
+			  begin
+					  set @success=0
+					  Print 'User is not University Type'
+			  end
+			  end
+
+		else
+		    begin
+			          set @success=0
+		              Print 'User not Found'
+			end
+
+END
+
+go
+	declare @stat int,@namee varchar, @loc varchar, @lat decimal,@long decimal,@phonee varchar,@rank int, @success int
+	exec viewUniProfile '1', @success=@stat ,@name=@namee ,@location=@loc ,@latitude=@lat ,@longitude=@long,@phone=@phonee,@ranking=@rank
+	select @success as Statuss
+	go
+
+	select * from [University]
