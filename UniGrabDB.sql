@@ -8,6 +8,8 @@ use UniGrab
 
 CREATE TABLE [Student] (
 	idStudent integer NOT NULL,
+	firstName varchar(255) NOT NULL,
+	latName varchar(255) NOT NULL,
 	educationType varchar(255) NOT NULL,
 	equivalence decimal NOT NULL,
 	DOB date NOT NULL,
@@ -19,6 +21,7 @@ CREATE TABLE [Student] (
 
 )
 CREATE TABLE [University] (
+    name varchar(255) NOT NULL,
 	phone varchar(11) NOT NULL,
 	idUniversity int NOT NULL,
 	ranking int NOT NULL,
@@ -37,8 +40,6 @@ CREATE TABLE [User] (
 	userName varchar(30) NOT NULL,
 	email varchar(100) NOT NULL,
 	password varchar(255) NOT NULL,
-	firstName varchar(255) NOT NULL,
-	latName varchar(255) NOT NULL,
 	location varchar(255) NOT NULL,
 	latitude decimal NOT NULL,
 	longitude decimal NOT NULL,
@@ -552,3 +553,58 @@ else
      Print 'User not Found'
 	 end
 	 end
+
+-----usecase 9------
+create procedure viewStudentProfile
+@uid int, 
+@success int output,
+@firstname varchar(255) output ,
+@lastName varchar(255) output,
+@location varchar(255) output,
+@latitude decimal output,
+@longitude decimal output ,
+@equivalence decimal output,
+@DOB date output,
+@subjectCombo varchar(255) output,
+@cgpa float output
+as 
+BEGIN
+	if exists (select * from [User] where  [User].idUser = @uid)
+	 begin
+		if exists(select * from [Student] where [Student].idStudent=@uid)
+			begin
+				if not exists(select * from [Graduate] where [Graduate].idGraduate=@uid)
+					begin
+						select @firstname=firstName,@lastname=latName,@location=location,@latitude=latitude,@longitude=longitude, @DOB=DOB,@subjectCombo=subjectCombo,@equivalence=equivalence from [User] join [Student] on [User].idUser=[Student].idStudent
+						set @success=1
+						Print 'User is UnderGraduate'
+					end
+				else 
+					begin
+						select @firstname=firstName,@lastname=latName,@location=location,@latitude=latitude,@longitude=longitude, @DOB=DOB,@subjectCombo=subjectCombo,@equivalence=equivalence, @cgpa=CGPA from [User] join [Student] on [User].idUser=[Student].idStudent join [Graduate] on [Student].idStudent=[Graduate].idGraduate
+						set @success=1
+						Print 'User is Graduate'
+					end
+			end
+		else
+		BEGIN
+			set @success=0
+			Print 'User is not Student type'
+		end
+	 end
+	else
+		begin
+			set @success=0 
+			Print 'User not Found'
+		end
+END
+	go
+	declare @stat int,@firstnamee varchar,@lastnamee varchar, @loc varchar, @lat decimal,@long decimal,@equi decimal,@dateofb date,@subj varchar,@CumGPA float, @success int
+	exec viewStudentProfile '1', @success=@stat ,@firstname=@firstnamee ,@lastName=@lastnamee,@location=@loc ,@latitude=@lat ,@longitude=@long,@equivalence=@equi,@DOB=@dateofb ,@subjectCombo=@subj ,@cgpa=@CumGPA
+	select @success as Statuss
+	go
+
+
+
+	-------usecase 10--------
+create procedure viewUniProfile
