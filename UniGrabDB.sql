@@ -516,3 +516,39 @@ EXECUTE delete_Account
 @isSuccess = @success
 SELECT * FROM [User]
 GO
+
+create procedure viewStudentProfile
+@uid integer,
+@firstname varchar(255),
+@lastname varchar(255),
+@location varchar(255),
+@latitude decimal,
+@longitude decimal,
+@DOB date,
+@equivalence decimal,
+@subjectCombo varchar(255),
+@success int output
+
+as 
+begin
+if exists (select * from [User] where  [User].idUser = @uid)
+    begin
+
+     select @firstname=firstName,@lastname=latName,@location=location,@latitude=latitude,@longitude=longitude from [User] where [User].idUser=@uid
+    
+  if exists(select * from [Student] where [Student].idStudent=@uid)
+      begin
+
+   select @DOB=DOB,@subjectCombo=subjectCombo,@equivalence=equivalence from [Student] where [Student].idStudent=@uid
+        set @success=1
+		end
+else 
+   begin
+    Print 'User is not Student it is University'
+    end
+	end
+else
+   begin
+     Print 'User not Found'
+	 end
+	 end
