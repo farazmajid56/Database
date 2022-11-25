@@ -610,6 +610,133 @@ EXECUTE delete_Account
 SELECT * FROM [User]
 GO
 
+<<<<<<< HEAD
+create procedure viewStudentProfile
+@uid integer,
+@firstname varchar(255),
+@lastname varchar(255),
+@location varchar(255),
+@latitude decimal,
+@longitude decimal,
+@DOB date,
+@equivalence decimal,
+@subjectCombo varchar(255),
+@success int output
+
+as 
+begin
+if exists (select * from [User] where  [User].idUser = @uid)
+    begin
+
+     select @firstname=firstName,@lastname=latName,@location=location,@latitude=latitude,@longitude=longitude from [User] where [User].idUser=@uid
+    
+  if exists(select * from [Student] where [Student].idStudent=@uid)
+      begin
+
+   select @DOB=DOB,@subjectCombo=subjectCombo,@equivalence=equivalence from [Student] where [Student].idStudent=@uid
+        set @success=1
+		end
+else 
+   begin
+    Print 'User is not Student it is University'
+    end
+	end
+else
+   begin
+     Print 'User not Found'
+	 end
+	 end
+
+SELECT * FROM [User] join [Student] on idUser=idStudent join [Graduate] on idStudent=idGraduate
+go
+insert into [Graduate]
+VALUES(5,4.8)
+insert into [User]
+VALUES (5,'codingmaster','koolboi@unigrab.com','123456','boi','isKool = TRUE','LUMS','0.0','0.0',0,0)
+go
+insert into [Student]
+VALUES(5,'bs',1050, '1986-2-12','pre eng' )
+select* from [Student]
+insert into [User]
+VALUES (6,'amazinguni','unime@unigrab.com','123456','FAST','NUCES','Faisal Town','0.0','0.0',0,0)
+go
+Select * from [University]
+insert into [University]
+VALUES('111244622',6,2,'veri good','FAST')
+-----usecase 9------
+--drop procedure viewStudentProfile
+create procedure viewStudentProfile
+@uid int 
+as 
+BEGIN
+	if exists (select * from [User] where  [User].idUser = @uid)
+	 begin
+		if exists(select * from [Student] where [Student].idStudent=@uid)
+			begin
+				if not exists(select * from [Graduate] where [Graduate].idGraduate=@uid)
+					begin
+						SELECT * 
+						FROM [User] join [Student] on idUser=idStudent
+						WHERE idUser= @uid
+						Print 'User is Graduate'
+					end
+				else 
+					begin
+						SELECT * 
+						FROM [User] join [Student] on idUser=idStudent join [Graduate] on idStudent=idGraduate
+						WHERE idUser= @uid
+						Print 'User is Graduate'
+					end
+			end
+		else
+		BEGIN
+			Print 'User is not Student type'
+		end
+	 end
+	else
+		begin
+			Print 'User not Found'
+		end
+END
+	go
+	exec viewStudentProfile '5'
+	go
+
+
+
+	-------usecase 10--------
+	drop procedure viewUniProfile
+create procedure viewUniProfile
+@uid int 
+as
+BEGIN
+if exists (select * from [User] where  [User].idUser = @uid)
+begin
+		  if exists(select * from [University] where [University].idUniversity=@uid)
+			    begin
+				     SELECT * 
+					 FROM [User] join [University] on idUser=idUniversity
+                       WHERE idUser= @uid
+					   end
+	     else 
+			  begin
+					  Print 'User is not University Type'
+			  end
+			  end
+
+		else
+		    begin
+		              Print 'User not Found'
+			end
+
+END
+
+go
+	exec viewUniProfile '6'
+	go
+
+	select * from [University]
+=======
 SELECT * FROM [Student]
 
 insert into [User]
@@ -646,3 +773,4 @@ BEGIN
 	WHERE idUser = @uid
 END
 GO
+>>>>>>> master
