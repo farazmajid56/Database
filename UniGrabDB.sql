@@ -170,7 +170,53 @@ CREATE TABLE [UndergraduateProgram] (
 	minMarks int NOT NULL
 )
 GO
+---
+GO
+create table Alumni
+(
+	id int identity(1,1) primary key,
+	idUniversity int foreign key references University(idUniversity),
+	name varchar(100),
+	placementCompany varchar(100),
+	batch int
+)
+GO
+GO
+create table FinancialAid
+(
+	id int identity(1,1) primary key,
+	idUniversity int foreign key references University(idUniversity),
+	name varchar(255),
+	detail nvarchar(max)
+)
+GO
 
+GO
+alter table UndergraduateProgram add constraint ugid_pk primary key(idUGProgram)
+GO
+GO
+alter table GraduateProgram add constraint gid_pk primary key(idGProgram)
+GO
+GO
+create Table ugReqBG
+(
+	name varchar(255),
+	bgid int foreign key references UndergraduateProgram(idUGProgram),
+	primary key(bgid, name)
+
+)
+GO
+GO
+create Table gReqBG
+(
+	name varchar(255),
+	bgid int foreign key references GraduateProgram(idGProgram),
+	primary key(bgid,name)
+
+)
+GO
+
+---
 ALTER TABLE [Department] WITH CHECK ADD CONSTRAINT [Department_fk0] FOREIGN KEY ([idUniversity]) REFERENCES [University]([idUniversity])
 ON UPDATE CASCADE
 GO
@@ -488,71 +534,7 @@ BEGIN
 			END
 END
 GO
-
--- test enable_Account
-GO
-DECLARE @success int
-EXECUTE enable_Account
-@uid = 1,
-@isSuccess = @success
-SELECT * FROM [User]
-GO
-
--- test disable_Account
-GO
-DECLARE @success int
-EXECUTE disable_Account
-@uid = 1,
-@isSuccess = @success
-SELECT * FROM [User]
-GO
-
--- test delete_Account
-GO
-DECLARE @success int
-EXECUTE delete_Account
-@uid = 1,
-@isSuccess = @success
-SELECT * FROM [User]
-GO
-
-create procedure viewStudentProfile
-@uid integer,
-@firstname varchar(255),
-@lastname varchar(255),
-@location varchar(255),
-@latitude decimal,
-@longitude decimal,
-@DOB date,
-@equivalence decimal,
-@subjectCombo varchar(255),
-@success int output
-
-as 
-begin
-if exists (select * from [User] where  [User].idUser = @uid)
-    begin
-
-     select @firstname=firstName,@lastname=latName,@location=location,@latitude=latitude,@longitude=longitude from [User] where [User].idUser=@uid
-    
-  if exists(select * from [Student] where [Student].idStudent=@uid)
-      begin
-
-   select @DOB=DOB,@subjectCombo=subjectCombo,@equivalence=equivalence from [Student] where [Student].idStudent=@uid
-        set @success=1
-		end
-else 
-   begin
-    Print 'User is not Student it is University'
-    end
-	end
-else
-   begin
-     Print 'User not Found'
-	 end
-	 end
-
------usecase 9------
+--drop procedure viewStudentProfile
 create procedure viewStudentProfile
 @uid int, 
 @success int output,
@@ -601,47 +583,66 @@ END
 	exec viewStudentProfile '1', @success=@stat ,@firstname=@firstnamee ,@lastName=@lastnamee,@location=@loc ,@latitude=@lat ,@longitude=@long,@equivalence=@equi,@DOB=@dateofb ,@subjectCombo=@subj ,@cgpa=@CumGPA
 	select @success as Statuss
 	go
+-- test enable_Account
+GO
+DECLARE @success int
+EXECUTE enable_Account
+@uid = 1,
+@isSuccess = @success
+SELECT * FROM [User]
+GO
 
+-- test disable_Account
+GO
+DECLARE @success int
+EXECUTE disable_Account
+@uid = 1,
+@isSuccess = @success
+--SELECT * FROM [User]
+GO
 
+-- test delete_Account
+GO
+DECLARE @success int
+EXECUTE delete_Account
+@uid = 1,
+@isSuccess = @success
+SELECT * FROM [User]
+GO
 
-	-------usecase 10--------
-create procedure viewUniProfile
-@uid int, 
-@success int output,
-@name varchar(255) output ,
-@location varchar(255) output,
-@latitude decimal output,
-@longitude decimal output ,
-@phone varchar(11),
-@ranking int
-as
+SELECT * FROM [Student]
+
+insert into [User]
+VALUES (1,'faraz','farazz@unigrab.com','123456','faraz','majid','lahore','0.0','0.0',0,0)
+insert into [Student]
+VALUES (1,'A Levels',85.70,'2001-2-17','IT')
+
+SELECT  
+    SERVERPROPERTY('productversion') as 'Product Version', 
+    SERVERPROPERTY('productlevel') as 'Product Level',  
+    SERVERPROPERTY('edition') as 'Product Edition',
+    SERVERPROPERTY('buildclrversion') as 'CLR Version',
+    SERVERPROPERTY('collation') as 'Default Collation',
+    SERVERPROPERTY('instancename') as 'Instance',
+    SERVERPROPERTY('lcid') as 'LCID',
+    SERVERPROPERTY('servername') as 'Server Name'
+
+GO
+create procedure getAllUsers
+AS
 BEGIN
-if exists (select * from [User] where  [User].idUser = @uid)
-begin
-		  if exists(select * from [University] where [University].idUniversity=@uid)
-			    begin
-				     select @name=Namee,@location=location,@latitude=latitude,@longitude=longitude,@phone=phone,@ranking=ranking from [User] join [University] on [User].idUser=[University].idUniversity
-					 set @success=1
-				end
-	     else 
-			  begin
-					  set @success=0
-					  Print 'User is not University Type'
-			  end
-			  end
-
-		else
-		    begin
-			          set @success=0
-		              Print 'User not Found'
-			end
-
+	SELECT * 
+	FROM [User]
 END
+GO
 
-go
-	declare @stat int,@namee varchar, @loc varchar, @lat decimal,@long decimal,@phonee varchar,@rank int, @success int
-	exec viewUniProfile '1', @success=@stat ,@name=@namee ,@location=@loc ,@latitude=@lat ,@longitude=@long,@phone=@phonee,@ranking=@rank
-	select @success as Statuss
-	go
-
-	select * from [University]
+GO
+create procedure getUser
+@uid int
+AS
+BEGIN
+	SELECT * 
+	FROM [User]
+	WHERE idUser = @uid
+END
+GO
