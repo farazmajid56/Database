@@ -534,55 +534,7 @@ BEGIN
 			END
 END
 GO
---drop procedure viewStudentProfile
-create procedure viewStudentProfile
-@uid int, 
-@success int output,
-@firstname varchar(255) output ,
-@lastName varchar(255) output,
-@location varchar(255) output,
-@latitude decimal output,
-@longitude decimal output ,
-@equivalence decimal output,
-@DOB date output,
-@subjectCombo varchar(255) output,
-@cgpa float output
-as 
-BEGIN
-	if exists (select * from [User] where  [User].idUser = @uid)
-	 begin
-		if exists(select * from [Student] where [Student].idStudent=@uid)
-			begin
-				if not exists(select * from [Graduate] where [Graduate].idGraduate=@uid)
-					begin
-						select @firstname=firstName,@lastname=latName,@location=location,@latitude=latitude,@longitude=longitude, @DOB=DOB,@subjectCombo=subjectCombo,@equivalence=equivalence from [User] join [Student] on [User].idUser=[Student].idStudent
-						set @success=1
-						Print 'User is UnderGraduate'
-					end
-				else 
-					begin
-						select @firstname=firstName,@lastname=latName,@location=location,@latitude=latitude,@longitude=longitude, @DOB=DOB,@subjectCombo=subjectCombo,@equivalence=equivalence, @cgpa=CGPA from [User] join [Student] on [User].idUser=[Student].idStudent join [Graduate] on [Student].idStudent=[Graduate].idGraduate
-						set @success=1
-						Print 'User is Graduate'
-					end
-			end
-		else
-		BEGIN
-			set @success=0
-			Print 'User is not Student type'
-		end
-	 end
-	else
-		begin
-			set @success=0 
-			Print 'User not Found'
-		end
-END
-	go
-	declare @stat int,@firstnamee varchar,@lastnamee varchar, @loc varchar, @lat decimal,@long decimal,@equi decimal,@dateofb date,@subj varchar,@CumGPA float, @success int
-	exec viewStudentProfile '1', @success=@stat ,@firstname=@firstnamee ,@lastName=@lastnamee,@location=@loc ,@latitude=@lat ,@longitude=@long,@equivalence=@equi,@DOB=@dateofb ,@subjectCombo=@subj ,@cgpa=@CumGPA
-	select @success as Statuss
-	go
+
 -- test enable_Account
 GO
 DECLARE @success int
@@ -609,43 +561,6 @@ EXECUTE delete_Account
 @isSuccess = @success
 SELECT * FROM [User]
 GO
-
-<<<<<<< HEAD
-create procedure viewStudentProfile
-@uid integer,
-@firstname varchar(255),
-@lastname varchar(255),
-@location varchar(255),
-@latitude decimal,
-@longitude decimal,
-@DOB date,
-@equivalence decimal,
-@subjectCombo varchar(255),
-@success int output
-
-as 
-begin
-if exists (select * from [User] where  [User].idUser = @uid)
-    begin
-
-     select @firstname=firstName,@lastname=latName,@location=location,@latitude=latitude,@longitude=longitude from [User] where [User].idUser=@uid
-    
-  if exists(select * from [Student] where [Student].idStudent=@uid)
-      begin
-
-   select @DOB=DOB,@subjectCombo=subjectCombo,@equivalence=equivalence from [Student] where [Student].idStudent=@uid
-        set @success=1
-		end
-else 
-   begin
-    Print 'User is not Student it is University'
-    end
-	end
-else
-   begin
-     Print 'User not Found'
-	 end
-	 end
 
 SELECT * FROM [User] join [Student] on idUser=idStudent join [Graduate] on idStudent=idGraduate
 go
