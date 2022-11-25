@@ -170,7 +170,53 @@ CREATE TABLE [UndergraduateProgram] (
 	minMarks int NOT NULL
 )
 GO
+---
+GO
+create table Alumni
+(
+	id int identity(1,1) primary key,
+	idUniversity int foreign key references University(idUniversity),
+	name varchar(100),
+	placementCompany varchar(100),
+	batch int
+)
+GO
+GO
+create table FinancialAid
+(
+	id int identity(1,1) primary key,
+	idUniversity int foreign key references University(idUniversity),
+	name varchar(255),
+	detail nvarchar(max)
+)
+GO
 
+GO
+alter table UndergraduateProgram add constraint ugid_pk primary key(idUGProgram)
+GO
+GO
+alter table GraduateProgram add constraint gid_pk primary key(idGProgram)
+GO
+GO
+create Table ugReqBG
+(
+	name varchar(255),
+	bgid int foreign key references UndergraduateProgram(idUGProgram),
+	primary key(bgid, name)
+
+)
+GO
+GO
+create Table gReqBG
+(
+	name varchar(255),
+	bgid int foreign key references GraduateProgram(idGProgram),
+	primary key(bgid,name)
+
+)
+GO
+
+---
 ALTER TABLE [Department] WITH CHECK ADD CONSTRAINT [Department_fk0] FOREIGN KEY ([idUniversity]) REFERENCES [University]([idUniversity])
 ON UPDATE CASCADE
 GO
@@ -485,7 +531,55 @@ BEGIN
 			END
 END
 GO
-
+--drop procedure viewStudentProfile
+create procedure viewStudentProfile
+@uid int, 
+@success int output,
+@firstname varchar(255) output ,
+@lastName varchar(255) output,
+@location varchar(255) output,
+@latitude decimal output,
+@longitude decimal output ,
+@equivalence decimal output,
+@DOB date output,
+@subjectCombo varchar(255) output,
+@cgpa float output
+as 
+BEGIN
+	if exists (select * from [User] where  [User].idUser = @uid)
+	 begin
+		if exists(select * from [Student] where [Student].idStudent=@uid)
+			begin
+				if not exists(select * from [Graduate] where [Graduate].idGraduate=@uid)
+					begin
+						select @firstname=firstName,@lastname=latName,@location=location,@latitude=latitude,@longitude=longitude, @DOB=DOB,@subjectCombo=subjectCombo,@equivalence=equivalence from [User] join [Student] on [User].idUser=[Student].idStudent
+						set @success=1
+						Print 'User is UnderGraduate'
+					end
+				else 
+					begin
+						select @firstname=firstName,@lastname=latName,@location=location,@latitude=latitude,@longitude=longitude, @DOB=DOB,@subjectCombo=subjectCombo,@equivalence=equivalence, @cgpa=CGPA from [User] join [Student] on [User].idUser=[Student].idStudent join [Graduate] on [Student].idStudent=[Graduate].idGraduate
+						set @success=1
+						Print 'User is Graduate'
+					end
+			end
+		else
+		BEGIN
+			set @success=0
+			Print 'User is not Student type'
+		end
+	 end
+	else
+		begin
+			set @success=0 
+			Print 'User not Found'
+		end
+END
+	go
+	declare @stat int,@firstnamee varchar,@lastnamee varchar, @loc varchar, @lat decimal,@long decimal,@equi decimal,@dateofb date,@subj varchar,@CumGPA float, @success int
+	exec viewStudentProfile '1', @success=@stat ,@firstname=@firstnamee ,@lastName=@lastnamee,@location=@loc ,@latitude=@lat ,@longitude=@long,@equivalence=@equi,@DOB=@dateofb ,@subjectCombo=@subj ,@cgpa=@CumGPA
+	select @success as Statuss
+	go
 -- test enable_Account
 GO
 DECLARE @success int
@@ -501,7 +595,7 @@ DECLARE @success int
 EXECUTE disable_Account
 @uid = 1,
 @isSuccess = @success
-SELECT * FROM [User]
+--SELECT * FROM [User]
 GO
 
 -- test delete_Account
@@ -511,4 +605,41 @@ EXECUTE delete_Account
 @uid = 1,
 @isSuccess = @success
 SELECT * FROM [User]
+GO
+
+SELECT * FROM [Student]
+
+insert into [User]
+VALUES (1,'faraz','farazz@unigrab.com','123456','faraz','majid','lahore','0.0','0.0',0,0)
+insert into [Student]
+VALUES (1,'A Levels',85.70,'2001-2-17','IT')
+
+SELECT  
+    SERVERPROPERTY('productversion') as 'Product Version', 
+    SERVERPROPERTY('productlevel') as 'Product Level',  
+    SERVERPROPERTY('edition') as 'Product Edition',
+    SERVERPROPERTY('buildclrversion') as 'CLR Version',
+    SERVERPROPERTY('collation') as 'Default Collation',
+    SERVERPROPERTY('instancename') as 'Instance',
+    SERVERPROPERTY('lcid') as 'LCID',
+    SERVERPROPERTY('servername') as 'Server Name'
+
+GO
+create procedure getAllUsers
+AS
+BEGIN
+	SELECT * 
+	FROM [User]
+END
+GO
+
+GO
+create procedure getUser
+@uid int
+AS
+BEGIN
+	SELECT * 
+	FROM [User]
+	WHERE idUser = @uid
+END
 GO
