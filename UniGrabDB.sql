@@ -44,6 +44,8 @@ CREATE TABLE [User] (
 	longitude decimal NOT NULL,
 	isAdmin integer NOT NULL DEFAULT '0',
 	isDisabled integer NOT NULL DEFAULT '0',
+	isStudent integer NOT NULL,
+	isUniversity integer NOT NULL,
   CONSTRAINT [PK_USER] PRIMARY KEY CLUSTERED
   (
   [idUser] ASC
