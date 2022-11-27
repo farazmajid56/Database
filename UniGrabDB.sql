@@ -1,179 +1,69 @@
 use master
--- go
--- drop  database UniGrab
--- go 
+go
+DROP DATABASE IF EXISTS UniGrab
+go 
 create database UniGrab
 go 
 use UniGrab
 
-CREATE TABLE [Student] (
-	idStudent integer NOT NULL,
-	educationType varchar(255) NOT NULL,
-	equivalence decimal NOT NULL,
-	DOB date NOT NULL,
-	subjectCombo varchar(255) NOT NULL,
-  CONSTRAINT [PK_STUDENT] PRIMARY KEY CLUSTERED
-  (
-  [idStudent] ASC
-  ) WITH (IGNORE_DUP_KEY = OFF)
 
-)
-CREATE TABLE [University] (
-	phone varchar(11) NOT NULL,
-	idUniversity int NOT NULL,
-	ranking int NOT NULL,
-	campusLife varchar(1000) NOT NULL,
-	--
-	name varchar(100) NOT NULL,
-  CONSTRAINT [PK_UNIVERSITY] PRIMARY KEY CLUSTERED
-  (
-  [idUniversity] ASC
-  ) WITH (IGNORE_DUP_KEY = OFF)
-
-)
-GO
 CREATE TABLE [User] (
-	idUser integer NOT NULL,
-	userName varchar(30) NOT NULL,
+	idUser integer NOT NULL identity(1,1) primary key,
+	userName varchar(30) NOT NULL unique,
 	email varchar(100) NOT NULL,
 	password varchar(255) NOT NULL,
 	firstName varchar(255) NOT NULL,
-	latName varchar(255) NOT NULL,
+	lastName varchar(255) NOT NULL,
 	location varchar(255) NOT NULL,
 	latitude decimal NOT NULL,
 	longitude decimal NOT NULL,
 	isAdmin integer NOT NULL DEFAULT '0',
 	isDisabled integer NOT NULL DEFAULT '0',
-	isStudent integer NOT NULL,
-	isUniversity integer NOT NULL,
-  CONSTRAINT [PK_USER] PRIMARY KEY CLUSTERED
-  (
-  [idUser] ASC
-  ) WITH (IGNORE_DUP_KEY = OFF)
-
 )
 GO
-CREATE TABLE [Graduate] (
-	idGraduate integer NOT NULL,
-	CGPA float NOT NULL,
-  CONSTRAINT [PK_GRADUATE] PRIMARY KEY CLUSTERED
-  (
-  [idGraduate] ASC
-  ) WITH (IGNORE_DUP_KEY = OFF)
 
-)
-GO
-CREATE TABLE [Review] (
-	idReview integer NOT NULL,
-	idStudent integer NOT NULL,
-	idUniversity integer NOT NULL,
-	stars integer NOT NULL,
-	review varchar(500) NOT NULL,
-  CONSTRAINT [PK_REVIEW] PRIMARY KEY CLUSTERED
-  (
-  [idReview] ASC
-  ) WITH (IGNORE_DUP_KEY = OFF)
 
-)
-GO
-CREATE TABLE [Post] (
-	idPost integer NOT NULL,
-	idUniversity integer NOT NULL,
-	type varchar(255) NOT NULL,
-  CONSTRAINT [PK_POST] PRIMARY KEY CLUSTERED
-  (
-  [idPost] ASC
-  ) WITH (IGNORE_DUP_KEY = OFF)
-
-)
-GO
-CREATE TABLE [text] (
-	idText integer NOT NULL,
-	description varchar(500) NOT NULL,
-  CONSTRAINT [PK_TEXT] PRIMARY KEY CLUSTERED
-  (
-  [idText] ASC
-  ) WITH (IGNORE_DUP_KEY = OFF)
-
-)
-GO
-CREATE TABLE [Image] (
-	idText integer NOT NULL,
-	description varchar(500) NOT NULL,
-	imagePath varchar(500) NOT NULL,
-  CONSTRAINT [PK_IMAGE] PRIMARY KEY CLUSTERED
-  (
-  [idText] ASC
-  ) WITH (IGNORE_DUP_KEY = OFF)
-
-)
-GO
-CREATE TABLE [Video] (
-	idText integer NOT NULL,
-	description varchar(500) NOT NULL,
-	videoPath varchar(500) NOT NULL,
-  CONSTRAINT [PK_VIDEO] PRIMARY KEY CLUSTERED
-  (
-  [idText] ASC
-  ) WITH (IGNORE_DUP_KEY = OFF)
-
+CREATE TABLE [Student] (
+	idStudent integer NOT NULL primary key,
+	educationType varchar(255) NOT NULL,
+	DOB date NOT NULL,
 )
 
-GO
-CREATE TABLE [Department] (
-	idDepartment int NOT NULL,
-	idUniversity int NOT NULL,
-	name varchar(45) NOT NULL,
-  CONSTRAINT [PK_DEPARTMENT] PRIMARY KEY CLUSTERED
-  (
-  [idDepartment] ASC
-  ) WITH (IGNORE_DUP_KEY = OFF)
+ALTER TABLE [Student] WITH CHECK ADD CONSTRAINT [Student_fk0] FOREIGN KEY ([idStudent]) REFERENCES [User]([idUser])
+ON UPDATE CASCADE on delete cascade
 
-)
-GO
-CREATE TABLE [Program] (
-	idProgram int NOT NULL,
-	idDepartment int NOT NULL,
-	name varchar(45) NOT NULL,
-	creditHours int NOT NULL,
-	feePerCreditHour int NOT NULL,
-	admissionFee int NOT NULL,
-	--
-	subjectCombo VARCHAR(100) NOT NULL,
-  CONSTRAINT [PK_PROGRAM] PRIMARY KEY CLUSTERED
-  (
-  [idProgram] ASC
-  ) WITH (IGNORE_DUP_KEY = OFF)
 
-)
-GO
-CREATE TABLE [Faculty] (
-	idFaculty int NOT NULL,
-	idUniversity int NOT NULL,
-	idDepartment int NOT NULL,
-	firstName varchar(45) NOT NULL,
-	lastName varchar(45) NOT NULL,
-	email varchar(45) NOT NULL,
-	designantion varchar(45) NOT NULL,
-  CONSTRAINT [PK_FACULTY] PRIMARY KEY CLUSTERED
-  (
-  [idFaculty] ASC
-  ) WITH (IGNORE_DUP_KEY = OFF)
 
+CREATE TABLE [University] (
+	phone varchar(11) NOT NULL,
+	idUniversity int NOT NULL primary key,
+	ranking int NOT NULL,
+	campusLife varchar(1000) NOT NULL,
+	admissionFee int NOT NULL
 )
 GO
-CREATE TABLE [GraduateProgram] (
-	idGProgram int NOT NULL,
-	minCGPA float NOT NULL
-)
-GO
-CREATE TABLE [UndergraduateProgram] (
-	idUGProgram int NOT NULL,
-	minMarks int NOT NULL
-)
-GO
----
-GO
+
+
+ALTER TABLE [University] WITH CHECK ADD CONSTRAINT [University_fk0] FOREIGN KEY ([idUniversity]) REFERENCES [User]([idUser])
+ON UPDATE CASCADE on delete cascade
+
+           -- -------------------------   Must execute these lines below ------------------
+alter table [User] drop column firstName
+alter table [User] drop column lastName
+alter table [User] drop column location
+alter table [User] drop column latitude
+alter table [User] drop column longitude
+
+alter table Student add firstName varchar(100) not null
+alter table Student add lastName varchar(100) not null
+
+
+alter table University add location varchar(255) not null
+alter table University add latitude decimal not null
+alter table University add longitude decimal not null
+
+           --------------------------------------------------------------------------------
+
 create table Alumni
 (
 	id int identity(1,1) primary key,
@@ -182,8 +72,8 @@ create table Alumni
 	placementCompany varchar(100),
 	batch int
 )
-GO
-GO
+
+
 create table FinancialAid
 (
 	id int identity(1,1) primary key,
@@ -191,15 +81,89 @@ create table FinancialAid
 	name varchar(255),
 	detail nvarchar(max)
 )
+
+
+
+CREATE TABLE [Undergraduate] (
+	idStudent int primary key foreign key references Student(idStudent),
+	marks int NOT NULL,
+	subjectCombo varchar(100) not null,
+)
+
+
+CREATE TABLE [Graduate] (
+	idStudent int primary key foreign key references Student(idStudent),
+	CGPA int NOT NULL,
+	BSDegree varchar(100) not null,
+)
+
+CREATE TABLE [Department] (
+	idDepartment int NOT NULL identity(1,1) primary key,
+	idUniversity int NOT NULL,
+	name varchar(45) NOT NULL,
+
+)
 GO
 
+ALTER TABLE [Department] WITH CHECK ADD CONSTRAINT [Department_fk0] FOREIGN KEY ([idUniversity]) REFERENCES [University]([idUniversity])
+ON UPDATE CASCADE 
+
+CREATE TABLE [Program] (
+	idProgram int NOT NULL identity (1,1) primary key,
+	idDepartment int NOT NULL,
+	name varchar(45) NOT NULL,
+	creditHours int NOT NULL,
+	feePerCreditHour int NOT NULL,
+)
 GO
-alter table UndergraduateProgram add constraint ugid_pk primary key(idUGProgram)
+
+ALTER TABLE [Program] WITH CHECK ADD CONSTRAINT [Program_fk0] FOREIGN KEY ([idDepartment]) REFERENCES [Department]([idDepartment])
+ON UPDATE CASCADE on delete cascade
+
+CREATE TABLE [Faculty] (
+	idFaculty int NOT NULL identity(1,1) primary key,
+	idUniversity int NOT NULL,
+	idDepartment int NOT NULL,
+	firstName varchar(45) NOT NULL,
+	lastName varchar(45) NOT NULL,
+	email varchar(45) NOT NULL,
+	designantion varchar(45) NOT NULL,
+
+)
 GO
+
+ALTER TABLE [Faculty] WITH CHECK ADD CONSTRAINT [Faculty_fk0] FOREIGN KEY ([idUniversity]) REFERENCES [University]([idUniversity])
+ON UPDATE CASCADE on delete cascade
+
+ALTER TABLE [Faculty] WITH CHECK ADD CONSTRAINT [Faculty_fk1] FOREIGN KEY ([idDepartment]) REFERENCES [Department]([idDepartment])
+
+
+          
+
+CREATE TABLE [GraduateProgram] (
+	idGProgram int NOT NULL primary key,
+	minCGPA float NOT NULL
+)
 GO
-alter table GraduateProgram add constraint gid_pk primary key(idGProgram)
+
+
+ALTER TABLE [GraduateProgram] WITH CHECK ADD CONSTRAINT [GraduateProgram_fk0] FOREIGN KEY ([idGProgram]) REFERENCES [Program]([idProgram])
+ON UPDATE CASCADE on delete cascade
+
+
+
+
+CREATE TABLE [UndergraduateProgram] (
+	idUGProgram int NOT NULL primary key,
+	minMarks int NOT NULL
+)
 GO
-GO
+
+ALTER TABLE [UndergraduateProgram] WITH CHECK ADD CONSTRAINT [UndergraduateProgram_fk0] FOREIGN KEY ([idUGProgram]) REFERENCES [Program]([idProgram])
+ON UPDATE CASCADE on delete cascade
+
+
+
 create Table ugReqBG
 (
 	name varchar(255),
@@ -207,110 +171,60 @@ create Table ugReqBG
 	primary key(bgid, name)
 
 )
-GO
-GO
+
 create Table gReqBG
 (
 	name varchar(255),
 	bgid int foreign key references GraduateProgram(idGProgram),
-	primary key(bgid,name)
+	primary key(bgid, name)
 
 )
-GO
-
----
-ALTER TABLE [Department] WITH CHECK ADD CONSTRAINT [Department_fk0] FOREIGN KEY ([idUniversity]) REFERENCES [University]([idUniversity])
-ON UPDATE CASCADE
-GO
-ALTER TABLE [Department] CHECK CONSTRAINT [Department_fk0]
-GO
-
-ALTER TABLE [Program] WITH CHECK ADD CONSTRAINT [Program_fk0] FOREIGN KEY ([idDepartment]) REFERENCES [Department]([idDepartment])
-ON UPDATE CASCADE
-GO
-ALTER TABLE [Program] CHECK CONSTRAINT [Program_fk0]
-GO
-
-ALTER TABLE [Faculty] WITH CHECK ADD CONSTRAINT [Faculty_fk0] FOREIGN KEY ([idUniversity]) REFERENCES [University]([idUniversity])
-ON UPDATE CASCADE
-GO
-ALTER TABLE [Faculty] CHECK CONSTRAINT [Faculty_fk0]
-GO
-ALTER TABLE [Faculty] WITH CHECK ADD CONSTRAINT [Faculty_fk1] FOREIGN KEY ([idDepartment]) REFERENCES [Department]([idDepartment])
---ON UPDATE CASCADE
-GO
-ALTER TABLE [Faculty] CHECK CONSTRAINT [Faculty_fk1]
-GO
-
-ALTER TABLE [GraduateProgram] WITH CHECK ADD CONSTRAINT [GraduateProgram_fk0] FOREIGN KEY ([idGProgram]) REFERENCES [Program]([idProgram])
-ON UPDATE CASCADE
-GO
-ALTER TABLE [GraduateProgram] CHECK CONSTRAINT [GraduateProgram_fk0]
-GO
-
-ALTER TABLE [UndergraduateProgram] WITH CHECK ADD CONSTRAINT [UndergraduateProgram_fk0] FOREIGN KEY ([idUGProgram]) REFERENCES [Program]([idProgram])
-ON UPDATE CASCADE
-GO
-ALTER TABLE [UndergraduateProgram] CHECK CONSTRAINT [UndergraduateProgram_fk0]
-GO
-
-GO
-ALTER TABLE [Student] WITH CHECK ADD CONSTRAINT [Student_fk0] FOREIGN KEY ([idStudent]) REFERENCES [User]([idUser])
-ON UPDATE CASCADE
-GO
-ALTER TABLE [Student] CHECK CONSTRAINT [Student_fk0]
-GO
-
-ALTER TABLE [University] WITH CHECK ADD CONSTRAINT [University_fk0] FOREIGN KEY ([idUniversity]) REFERENCES [User]([idUser])
-GO
-ALTER TABLE [University] CHECK CONSTRAINT [University_fk0]
-GO
 
 
-ALTER TABLE [Graduate] WITH CHECK ADD CONSTRAINT [Graduate_fk0] FOREIGN KEY ([idGraduate]) REFERENCES [Student]([idStudent])
-ON UPDATE CASCADE
-GO
-ALTER TABLE [Graduate] CHECK CONSTRAINT [Graduate_fk0]
-GO
+CREATE TABLE [Review] (
+	idReview integer identity(1,1) primary key,
+	idStudent integer foreign key references Student(idStudent),
+	idUniversity integer foreign key references University(idUniversity),
+	stars integer,
+	review varchar(500) NOT NULL,
+)
 
-ALTER TABLE [Review] WITH CHECK ADD CONSTRAINT [Review_fk0] FOREIGN KEY ([idStudent]) REFERENCES [Student]([idStudent])
-ON UPDATE CASCADE
-GO
-ALTER TABLE [Review] CHECK CONSTRAINT [Review_fk0]
-GO
 
-ALTER TABLE [Review] WITH CHECK ADD CONSTRAINT [Review_fk1] FOREIGN KEY ([idUniversity]) REFERENCES [University]([idUniversity])
-ON UPDATE CASCADE
-GO
-ALTER TABLE [Review] CHECK CONSTRAINT [Review_fk1]
-GO
+CREATE TABLE [text] (
+	idtxt int identity(1,1) primary key,
+	idUniversity int foreign key references University(idUniversity) on update cascade on delete cascade,
+	description varchar(500) NOT NULL
+)
 
-ALTER TABLE [Post] WITH CHECK ADD CONSTRAINT [Post_fk0] FOREIGN KEY ([idPost]) REFERENCES [University]([idUniversity])
-ON UPDATE CASCADE
-GO
-ALTER TABLE [Post] CHECK CONSTRAINT [Post_fk0]
-GO
 
-ALTER TABLE [text] WITH CHECK ADD CONSTRAINT [text_fk0] FOREIGN KEY ([idText]) REFERENCES [Post]([idPost])
-ON UPDATE CASCADE
-GO
-ALTER TABLE [text] CHECK CONSTRAINT [text_fk0]
-GO
+CREATE TABLE [Image] (
+	idimg int identity(1,1) primary key,
+	idUniversity int foreign key references University(idUniversity) on update cascade on delete cascade,
+	imgBin Nvarchar(max) NOT NULL,
+	description varchar(255)
+)
 
-ALTER TABLE [Image] WITH CHECK ADD CONSTRAINT [Image_fk0] FOREIGN KEY ([idText]) REFERENCES [Post]([idPost])
-ON UPDATE CASCADE
-GO
-ALTER TABLE [Image] CHECK CONSTRAINT [Image_fk0]
-GO
+CREATE TABLE [Video] (
+	idText integer identity(1,1) primary key,
+	idUniversity int foreign key references University(idUniversity) on update cascade on delete cascade,
+	link nvarchar(max) NOT NULL
+)
 
-ALTER TABLE [Video] WITH CHECK ADD CONSTRAINT [Video_fk0] FOREIGN KEY ([idText]) REFERENCES [Post]([idPost])
-ON UPDATE CASCADE
-GO
-ALTER TABLE [Video] CHECK CONSTRAINT [Video_fk0]
-GO
+CREATE TABLE Feedback (
+	idFeedback integer identity(1,1) primary key,
+	idUser integer foreign key references [User](idUser) on update cascade on delete cascade,
+	feedback varchar(1000) NOT NULL
+)
 
+
+CREATE TABLE FAQs (
+	idFAQ integer identity(1,1) primary key,
+	question varchar(500) NOT NULL,
+	answer varchar(500) NOT NULL
+)
 --PROCEDURE FOR Use Case 2--
---drop procedure Login_Check
+
+DROP PROCEDURE IF EXISTS login_Check
 go
 create procedure login_Check
 @email varchar(45),
@@ -360,7 +274,8 @@ end
 go
 
 --PROCEDURE FOR Use Case 1--
---drop procedure Signup_Check
+
+DROP PROCEDURE IF EXISTS signup_Check
 go
 create procedure signup_Check
 @uid integer,
@@ -443,7 +358,9 @@ go
 
 
 --PROCEDURES FOR Use Case 13 Manage Account--
---drop procedure enable_Account
+
+DROP PROCEDURE IF EXISTS enable_Account
+GO
 CREATE PROCEDURE enable_Account
 @uid int,
 @isSuccess int output
@@ -466,7 +383,8 @@ BEGIN
 END
 GO
 
---drop procedure disable_Account
+
+DROP PROCEDURE IF EXISTS disable_Account
 GO
 CREATE PROCEDURE disable_Account
 @uid int,
@@ -489,7 +407,8 @@ BEGIN
 END
 GO
 
---drop procedure delete_Account
+
+DROP PROCEDURE IF EXISTS delete_Account
 GO
 create procedure delete_Account
 @uid int,
@@ -533,19 +452,13 @@ BEGIN
 			END
 END
 GO
---drop procedure viewStudentProfile
+
+-----usecase 9------
+
+DROP PROCEDURE IF EXISTS viewStudentProfile
+GO
 create procedure viewStudentProfile
-@uid int, 
-@success int output,
-@firstname varchar(255) output ,
-@lastName varchar(255) output,
-@location varchar(255) output,
-@latitude decimal output,
-@longitude decimal output ,
-@equivalence decimal output,
-@DOB date output,
-@subjectCombo varchar(255) output,
-@cgpa float output
+@uid int 
 as 
 BEGIN
 	if exists (select * from [User] where  [User].idUser = @uid)
@@ -554,34 +467,67 @@ BEGIN
 			begin
 				if not exists(select * from [Graduate] where [Graduate].idGraduate=@uid)
 					begin
-						select @firstname=firstName,@lastname=latName,@location=location,@latitude=latitude,@longitude=longitude, @DOB=DOB,@subjectCombo=subjectCombo,@equivalence=equivalence from [User] join [Student] on [User].idUser=[Student].idStudent
-						set @success=1
-						Print 'User is UnderGraduate'
+						SELECT * 
+						FROM [User] join [Student] on idUser=idStudent
+						WHERE idUser= @uid
+						Print 'User is Graduate'
 					end
 				else 
 					begin
-						select @firstname=firstName,@lastname=latName,@location=location,@latitude=latitude,@longitude=longitude, @DOB=DOB,@subjectCombo=subjectCombo,@equivalence=equivalence, @cgpa=CGPA from [User] join [Student] on [User].idUser=[Student].idStudent join [Graduate] on [Student].idStudent=[Graduate].idGraduate
-						set @success=1
+						SELECT * 
+						FROM [User] join [Student] on idUser=idStudent join [Graduate] on idStudent=idGraduate
+						WHERE idUser= @uid
 						Print 'User is Graduate'
 					end
 			end
 		else
 		BEGIN
-			set @success=0
 			Print 'User is not Student type'
 		end
 	 end
 	else
 		begin
-			set @success=0 
 			Print 'User not Found'
 		end
 END
-	go
-	declare @stat int,@firstnamee varchar,@lastnamee varchar, @loc varchar, @lat decimal,@long decimal,@equi decimal,@dateofb date,@subj varchar,@CumGPA float, @success int
-	exec viewStudentProfile '1', @success=@stat ,@firstname=@firstnamee ,@lastName=@lastnamee,@location=@loc ,@latitude=@lat ,@longitude=@long,@equivalence=@equi,@DOB=@dateofb ,@subjectCombo=@subj ,@cgpa=@CumGPA
-	select @success as Statuss
-	go
+GO
+
+exec viewStudentProfile '5'
+
+
+
+
+	-------usecase 10--------
+DROP PROCEDURE IF EXISTS viewUniProfile
+GO
+create procedure viewUniProfile
+@uid int 
+as
+BEGIN
+if exists (select * from [User] where  [User].idUser = @uid)
+begin
+		  if exists(select * from [University] where [University].idUniversity=@uid)
+			    begin
+				     SELECT * 
+					 FROM [User] join [University] on idUser=idUniversity
+                       WHERE idUser= @uid
+					   end
+	     else 
+			  begin
+					  Print 'User is not University Type'
+			  end
+			  end
+
+		else
+		    begin
+		              Print 'User not Found'
+			end
+
+END
+GO
+
+exec viewUniProfile '6'
+
 -- test enable_Account
 GO
 DECLARE @success int
