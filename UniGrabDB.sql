@@ -71,7 +71,7 @@ alter table Student add lastName varchar(100) not null
 create table Alumni
 (
 	id int identity(1,1) primary key,
-	idUniversity int foreign key references University(idUniversity),
+	idUniversity int foreign key references University(idUniversity) on update cascade on delete cascade,
 	name varchar(100),
 	placementCompany varchar(100),
 	batch int
@@ -89,14 +89,14 @@ create table FinancialAid
 
 
 CREATE TABLE [Undergraduate] (
-	idStudent int primary key foreign key references Student(idStudent),
+	idStudent int primary key foreign key references Student(idStudent) on update cascade on delete cascade,
 	marks int NOT NULL,
 	subjectCombo varchar(100) not null,
 )
 
 
 CREATE TABLE [Graduate] (
-	idStudent int primary key foreign key references Student(idStudent),
+	idStudent int primary key foreign key references Student(idStudent) on update cascade on delete cascade,
 	CGPA int NOT NULL,
 	BSDegree varchar(100) not null,
 )
@@ -330,8 +330,7 @@ go
 DROP PROCEDURE IF EXISTS enable_Account
 GO
 CREATE PROCEDURE enable_Account
-@uid int,
-@isSuccess int output
+@uid int
 AS
 BEGIN
 	IF EXISTS(SELECT * FROM [User] WHERE @uid = idUser)
@@ -340,12 +339,12 @@ BEGIN
 			SET		isDisabled = 0
 			WHERE	idUser = @uid
 
-			SET @isSuccess = 1
-			PRINT 'Account Enabled'
+			SELECT 1 as result
+			PRINT 'Successfuly Enabled'
 		END	
 	ELSE
 		BEGIN
-			SET @isSuccess = 0
+			SELECT 0 as result
 			PRINT 'Record not found'
 		END
 END
@@ -354,8 +353,7 @@ GO
 DROP PROCEDURE IF EXISTS disable_Account
 GO
 CREATE PROCEDURE disable_Account
-@uid int,
-@isSuccess int output
+@uid int
 AS
 BEGIN
 	IF EXISTS(SELECT * FROM [User] WHERE @uid = idUser)
@@ -363,12 +361,13 @@ BEGIN
 			UPDATE	[User]
 			SET		isDisabled = 1
 			WHERE	idUser = @uid
-			SET @isSuccess = 1
-			PRINT 'Account Disabled'
+
+			SELECT 1 as result
+			PRINT 'Successfuly Disabled'
 		END	
 	ELSE
 		BEGIN
-			SET @isSuccess = 0
+			SELECT 0 as result
 			PRINT 'Record not found'
 		END
 END
@@ -377,14 +376,13 @@ GO
 DROP PROCEDURE IF EXISTS delete_Account
 GO
 create procedure delete_Account
-@uid int,
-@isSuccess int output
+@uid int
 AS
 BEGIN
 	DECLARE @type varchar(1)
 		IF EXISTS(SELECT * FROM [User] WHERE @uid = idUser)
 			BEGIN
-				SET @isSuccess = 1
+				--SET @isSuccess = 1
 				--Check if Student
 				IF EXISTS(SELECT * FROM [Student] WHERE @uid = idStudent)
 					BEGIN
@@ -402,18 +400,20 @@ BEGIN
 					BEGIN
 						DELETE FROM [Student] WHERE idStudent = @uid
 						-- Check if on delete cascade enabled
+						SELECT 1 as result
 						PRINT 'Deleted from Table STUDENT'
 					END
 				ELSE IF (@type = 'U')
 					BEGIN
 						DELETE FROM [University] WHERE idUniversity = @uid
+						SELECT 1 as result
 						PRINT 'Deleted from Table UNIVERSITY'
 					END
 
 			END
 		ELSE
 			BEGIN
-				SET @isSuccess = 0
+				SELECT 0 as result
 				PRINT 'Error Record Not Found'
 			END
 END
@@ -503,9 +503,16 @@ create procedure getUser
 @uid int
 AS
 BEGIN
-	SELECT * 
-	FROM [User]
-	WHERE idUser = @uid
+	IF EXISTS(SELECT * FROM [Student] WHERE idStudent=@uid)
+		BEGIN
+			SELECT * 
+			FROM [User] join [Student] on [Student].[idStudent] = [User].idUser
+			WHERE idUser = @uid
+		END
+	ELSE
+			SELECT * 
+			FROM [User] join [University] on [University].[idUniversity] = [User].idUser
+			WHERE idUser = @uid
 END
 GO
 --------------------------------------------------------------------------------------------------
@@ -552,26 +559,26 @@ SELECT * FROM [Undergraduate]
 --VALUES (2,'root','root@unigrab.com','123456','root','abcd','system','0.0','0.0',1,0)
 --go
 
---exec viewStudentProfile '5'
+exec viewStudentProfile '7'
 --exec viewUniProfile '6'
+exec getUser '3'
 
----- test enable_Account
---GO
---DECLARE @success int
---EXECUTE enable_Account
---@uid = 1,
---@isSuccess = @success
---SELECT * FROM [User]
---GO
+exec delete_Account '2'
 
----- test disable_Account
---GO
---DECLARE @success int
---EXECUTE disable_Account
---@uid = 1,
---@isSuccess = @success
-----SELECT * FROM [User]
---GO
+-- test enable_Account
+-- GO
+-- DECLARE @success int
+-- EXECUTE enable_Account
+-- @uid = 7
+-- SELECT * FROM [User]
+-- GO
+
+-- test disable_Account
+-- GO
+-- EXECUTE disable_Account
+-- @uid = 7
+-- SELECT * FROM [User]
+-- GO
 
 ---- test delete_Account
 --GO
@@ -769,3 +776,14 @@ insert into Review values(18, 5, 3, 'mazedar uni giki')
 insert into Review values(19, 6, 3, 'mazedar uni nust')
 
 select * from Review
+
+SELECT * FROM [User]
+SELECT * FROM [Student]
+SELECT * FROM [Graduate]
+SELECT * FROM [Undergraduate]
+
+SELECT * FROM [User]
+select * from [University]
+
+exec delete_Account '9'
+exec getUser '3'
