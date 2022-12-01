@@ -81,7 +81,7 @@ create table Alumni
 create table FinancialAid
 (
 	id int identity(1,1) primary key,
-	idUniversity int foreign key references University(idUniversity),
+	idUniversity int foreign key references University(idUniversity) on update cascade on delete cascade,
 	name varchar(255),
 	detail nvarchar(max)
 )
@@ -97,7 +97,7 @@ CREATE TABLE [Undergraduate] (
 
 CREATE TABLE [Graduate] (
 	idStudent int primary key foreign key references Student(idStudent) on update cascade on delete cascade,
-	CGPA int NOT NULL,
+	CGPA float NOT NULL,
 	BSDegree varchar(100) not null,
 )
 
@@ -110,7 +110,7 @@ CREATE TABLE [Department] (
 GO
 
 ALTER TABLE [Department] WITH CHECK ADD CONSTRAINT [Department_fk0] FOREIGN KEY ([idUniversity]) REFERENCES [University]([idUniversity])
-ON UPDATE CASCADE 
+ON UPDATE CASCADE on delete cascade
 
 CREATE TABLE [Program] (
 	idProgram int NOT NULL identity (1,1) primary key,
@@ -136,10 +136,10 @@ CREATE TABLE [Faculty] (
 )
 GO
 
-ALTER TABLE [Faculty] WITH CHECK ADD CONSTRAINT [Faculty_fk0] FOREIGN KEY ([idUniversity]) REFERENCES [University]([idUniversity])
+ALTER TABLE [Faculty] WITH CHECK ADD CONSTRAINT [Faculty_fk0] FOREIGN KEY ([idDepartment]) REFERENCES  [Department]([idDepartment])
 ON UPDATE CASCADE on delete cascade
 
-ALTER TABLE [Faculty] WITH CHECK ADD CONSTRAINT [Faculty_fk1] FOREIGN KEY ([idDepartment]) REFERENCES [Department]([idDepartment])
+--ALTER TABLE [Faculty] WITH CHECK ADD CONSTRAINT [Faculty_fk1] FOREIGN KEY ([idDepartment]) REFERENCES [Department]([idDepartment])
 
 
           
@@ -171,7 +171,7 @@ ON UPDATE CASCADE on delete cascade
 create Table ugReqBG
 (
 	name varchar(255),
-	bgid int foreign key references UndergraduateProgram(idUGProgram),
+	bgid int foreign key references UndergraduateProgram(idUGProgram) on update cascade on delete cascade,
 	primary key(bgid, name)
 
 )
@@ -179,7 +179,7 @@ create Table ugReqBG
 create Table gReqBG
 (
 	name varchar(255),
-	bgid int foreign key references GraduateProgram(idGProgram),
+	bgid int foreign key references GraduateProgram(idGProgram) on update cascade on delete cascade,
 	primary key(bgid, name)
 
 )
@@ -188,7 +188,7 @@ create Table gReqBG
 CREATE TABLE [Review] (
 	idReview integer identity(1,1) primary key,
 	idStudent integer foreign key references Student(idStudent),
-	idUniversity integer foreign key references University(idUniversity),
+	idUniversity integer foreign key references University(idUniversity) on update cascade on delete cascade,
 	stars integer,
 	review varchar(500) NOT NULL,
 )
@@ -494,6 +494,7 @@ AS
 BEGIN
 	SELECT * 
 	FROM [User]
+	WHERE isAdmin = 0
 END
 GO
 --(select *, 'University' as type from [User] as ttk where idUser = 1) 
@@ -611,8 +612,8 @@ exec delete_Account '2'
 
 
 
-insert into [User] values( 'a', 'fast@gmail.com', 'fast123', 0, 0,'University')
-insert into [User] values( 'b', 'fast@gmail.com', 'fast123', 0, 0,'University')
+insert into [User] values( 'admin', 'admin@gmail.com', 'admin123', 1, 0,'Admin')
+insert into [User] values( 'root', 'root@gmail.com', 'root123', 1, 0,'Admin')
 insert into [User] values( 'fast', 'fast@gmail.com', 'fast123', 0, 0,'University')
 insert into [User] values( 'lums', 'lums@gmail.com', 'lums123', 0, 0,'University')
 insert into [User] values( 'giki', 'giki@gmail.com', 'giki123', 0, 0,'University')
@@ -631,17 +632,24 @@ SELECT * FROM [User]
 INSERT into [Student] values(7,'A-Level','2000-01-01','faraz','majid')
 INSERT into [Student] values(8,'Fsc','2000-01-01','aemon','fatima')
 INSERT into [Student] values(9,'A-Level','2000-01-01','momnin','imran')
-INSERT into [Student] values(14,'A-Level','2000-01-01','ali','khan')
+INSERT into [Student] values(10,'Fsc','2000-01-01','Zain','Abadeen')
+INSERT into [Student] values(11,'Fsc','2000-01-01','Rayan','Sadiqqi')
+INSERT into [Student] values(12,'A-Level','2000-01-01','Awais','Khan')
+INSERT into [Student] values(13,'Fsc','2000-01-01','Mujahid','Ali')
 
 SELECT * FROM [Student]
 
 INSERT INTO [Undergraduate] values(7,100,'Science')
 INSERT INTO [Undergraduate] values(8,100,'Science')
 INSERT INTO [Undergraduate] values(9,100,'Science')
+INSERT INTO [Undergraduate] values(10,100,'Science')
+INSERT INTO [Undergraduate] values(11,100,'Science')
+INSERT INTO [Undergraduate] values(12,100,'Science')
 
 SELECT * FROM [Undergraduate]
 
 INSERT INTO [Graduate] values(14,3.98,'CS')
+INSERT INTO [Graduate] values(13,3.88,'CS')
 
 SELECT * FROM [Graduate]
 
@@ -664,12 +672,12 @@ insert into Department values(3, 'FastEngDept')
 select * from Department
 
 
-insert into Program values( 1, 'BSCS', 110, 8500)
-insert into Program values( 1, 'BSSE', 110, 8500)
-insert into Program values( 1, 'BSDS', 110, 8500)
-insert into Program values( 2, 'BSCS', 110, 8500)
-insert into Program values( 2, 'BSSE', 110, 8500)
-insert into Program values( 2, 'BSDS', 110, 8500)
+-- insert into Program values( 1, 'BSCS', 110, 8500)
+-- insert into Program values( 1, 'BSSE', 110, 8500)
+-- insert into Program values( 1, 'BSDS', 110, 8500)
+-- insert into Program values( 2, 'BSCS', 110, 8500)
+-- insert into Program values( 2, 'BSSE', 110, 8500)
+-- insert into Program values( 2, 'BSDS', 110, 8500)
 insert into Program values( 3, 'BSCS', 110, 8500)
 insert into Program values( 3, 'BSSE', 110, 8500)
 insert into Program values( 3, 'BSDS', 110, 8500)
@@ -681,8 +689,8 @@ insert into Program values( 5, 'BSCV', 110, 8500)
 select * from Program
 
 
-insert into UndergraduateProgram values(1, 920)
-insert into UndergraduateProgram values(2, 900)
+-- insert into UndergraduateProgram values(1, 920)
+-- insert into UndergraduateProgram values(2, 900)
 insert into UndergraduateProgram values(3, 850)
 insert into UndergraduateProgram values(4, 940)
 insert into UndergraduateProgram values(5, 920)
@@ -697,11 +705,11 @@ insert into UndergraduateProgram values(13, 620)
 
 select * from UndergraduateProgram
 
-insert into ugReqBG values('Pre Engineering', 1)
-insert into ugReqBG values('Pre Medical', 1)
-insert into ugReqBG values('ICS', 1)
-insert into ugReqBG values('Pre Engineering', 2)
-insert into ugReqBG values('Pre Medical', 2)
+-- insert into ugReqBG values('Pre Engineering', 1)
+-- insert into ugReqBG values('Pre Medical', 1)
+-- insert into ugReqBG values('ICS', 1)
+-- insert into ugReqBG values('Pre Engineering', 2)
+-- insert into ugReqBG values('Pre Medical', 2)
 insert into ugReqBG values('Pre Engineering', 3)
 insert into ugReqBG values('Pre Medical', 3)
 insert into ugReqBG values('ICS', 3)
@@ -783,7 +791,13 @@ SELECT * FROM [Graduate]
 SELECT * FROM [Undergraduate]
 
 SELECT * FROM [User]
-select * from [University]
+SELECT * FROM [University]
+SELECT * FROM [Faculty]
+SELECT * FROM [Department]
+SELECT * FROM [Alumni]
+SELECT * FROM [Program]
+SELECT * FROM [UndergraduateProgram]
+
 
 exec delete_Account '9'
 exec getUser '3'
