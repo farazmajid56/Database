@@ -12,11 +12,6 @@ CREATE TABLE [User] (
 	userName varchar(30) NOT NULL unique,
 	email varchar(100) NOT NULL,
 	password varchar(255) NOT NULL,
-	--firstName varchar(255) NOT NULL,
-	--lastName varchar(255) NOT NULL,
-	--location varchar(255) NOT NULL,
-	--latitude decimal NOT NULL,
-	--longitude decimal NOT NULL,
 	isAdmin integer NOT NULL DEFAULT '0',
 	isDisabled integer NOT NULL DEFAULT '0',
 	type varchar(255) NOT NULL
@@ -28,6 +23,8 @@ CREATE TABLE [Student] (
 	idStudent integer NOT NULL primary key,
 	educationType varchar(255) NOT NULL,
 	DOB varchar(11) NOT NULL,
+	firstName varchar(100) not null,
+    lastName varchar(100) not null
 )
 
 ALTER TABLE [Student] WITH CHECK ADD CONSTRAINT [Student_fk0] FOREIGN KEY ([idStudent]) REFERENCES [User]([idUser])
@@ -36,11 +33,11 @@ ON UPDATE CASCADE on delete cascade
 
 
 CREATE TABLE [University] (
-	phone varchar(11) NOT NULL,
+	phone varchar(13) NOT NULL,
 	idUniversity int NOT NULL primary key,
 	ranking int NOT NULL,
 	campusLife varchar(1000) NOT NULL,
-	[location] varchar(255) not null,
+	location varchar(255) not null,
 	latitude decimal not null,
 	longitude decimal not null,
 	admissionFee int NOT NULL
@@ -51,22 +48,6 @@ GO
 ALTER TABLE [University] WITH CHECK ADD CONSTRAINT [University_fk0] FOREIGN KEY ([idUniversity]) REFERENCES [User]([idUser])
 ON UPDATE CASCADE on delete cascade
 
-           -- -------------------------   Must execute these lines below ------------------
---alter table [User] drop column firstName
---alter table [User] drop column lastName
---alter table [User] drop column location
---alter table [User] drop column latitude
---alter table [User] drop column longitude
-
-alter table Student add firstName varchar(100) not null
-alter table Student add lastName varchar(100) not null
-
-
---alter table University add [location] varchar(255) not null
---alter table University add latitude decimal not null
---alter table University add longitude decimal not null
-
-           --------------------------------------------------------------------------------
 
 create table Alumni
 (
@@ -167,6 +148,7 @@ ALTER TABLE [UndergraduateProgram] WITH CHECK ADD CONSTRAINT [UndergraduateProgr
 ON UPDATE CASCADE on delete cascade
 
 
+
 create Table ugReqBG
 (
 	name varchar(255),
@@ -174,10 +156,8 @@ create Table ugReqBG
 	primary key(bgid, name)
 
 )
-ALTER TABLE ugReqBG WITH CHECK ADD CONSTRAINT [ugReqBG_fk0] FOREIGN KEY (bgid) REFERENCES [UndergraduateProgram](idUGProgram)
-ON UPDATE CASCADE on delete cascade
-
-
+--ALTER TABLE ugReqBG WITH CHECK ADD CONSTRAINT [ugReqBG_fk0] FOREIGN KEY (bgid) REFERENCES [UndergraduateProgram](idUGProgram)
+--ON UPDATE CASCADE on delete cascade
 create Table gReqBG
 (
 	name varchar(255),
@@ -185,10 +165,8 @@ create Table gReqBG
 	primary key(bgid, name)
 
 )
-
-ALTER TABLE gReqBG WITH CHECK ADD CONSTRAINT [gReqBG_fk0] FOREIGN KEY (bgid) REFERENCES [GraduateProgram](idGProgram)
-ON UPDATE CASCADE on delete cascade
-
+--ALTER TABLE gReqBG WITH CHECK ADD CONSTRAINT [gReqBG_fk0] FOREIGN KEY (bgid) REFERENCES [GraduateProgram](idGProgram)
+--ON UPDATE CASCADE on delete cascade
 
 CREATE TABLE [Review] (
 	idReview integer identity(1,1) primary key,
@@ -231,6 +209,9 @@ CREATE TABLE FAQs (
 	question varchar(500) NOT NULL,
 	answer varchar(500) NOT NULL
 )
+
+--ALTER TABLE [UndergraduateProgram] WITH CHECK ADD CONSTRAINT [UndergraduateProgram_fk1] FOREIGN KEY ([idUGProgram]) REFERENCES [Program]([idProgram])
+--ON UPDATE CASCADE on delete cascade
 
 
 
@@ -521,12 +502,6 @@ BEGIN
 			WHERE idUser = @uid
 END
 GO
---------------------------------------------------------------------------------------------------
-SELECT * FROM [User]
-SELECT * FROM [Student]
-SELECT * FROM [University]
-SELECT * FROM [Graduate]
-SELECT * FROM [Undergraduate]
 
 ---------------------------------INSERTION FOR TESTING -----------------------------------------------
 ----note:ID ATTRIBUTES WITH "identity(1,1)" in create table statements dont need to be inserted manually as it means ids are automatically inserted with an increment of 1 starting from 1------------------
@@ -546,7 +521,7 @@ insert into [User] values( 'zain', 'zain@gmail.com', 'zain123', 0, 0,'Student')
 insert into [User] values( 'rayan', 'rayan@gmail.com', 'rayan123', 0, 0,'Student')
 insert into [User] values( 'awais', 'awais@gmail.com', 'awais123', 0, 0,'Student')
 insert into [User] values( 'mujahid', 'mujahid@gmail.com', 'mujahid123', 0, 0,'Student')
-insert into [User] values( 'ali', 'ali@gmail.com', 'ali123', 0, 0,'Student')
+--insert into [User] values( 'ali', 'ali@gmail.com', 'ali123', 0, 0,'Student')
 
 SELECT * FROM [User]
 
@@ -569,15 +544,15 @@ INSERT INTO [Undergraduate] values(12,100,'Science')
 
 SELECT * FROM [Undergraduate]
 
-INSERT INTO [Graduate] values(14,3.98,'CS')
+--INSERT INTO [Graduate] values(14,3.98,'CS')
 INSERT INTO [Graduate] values(13,3.88,'CS')
 
 SELECT * FROM [Graduate]
 
-insert into [University] values('03003333333', 3, 3, 'v good', 'lahore', 0, 0, 25000)
-insert into [University] values('03004444444', 4, 4, 'v good', 'lahore', 0, 0, 24000)
-insert into [University] values('03005555555', 5, 5, 'v good', 'lahore', 0, 0, 23000)
-insert into [University] values('03006666666', 6, 6, 'v good', 'lahore', 0, 0, 22000)
+insert into [University] values('(042) 111 128 128', 3, 92, 'v good', '852-B Milaad St, Block B Faisal Town, Lahore, Punjab 54770', 31.4815, 74.3030, 25000)
+insert into [University] values('(042) 35608000', 4, 116, 'v good', 'Khyaban-e-Jinnah, opposite Sector U،, Phase 5 D.H.A, Lahore, Punjab 54792', 31.4707, 74.4098, 24000)
+insert into [University] values('(0938) 271858', 5, 254, 'v good', 'Tarbela Road, District Swabi, Khyber Pakhtoon Khwa, Topi, Swabi, Khyber Pakhtunkhwa 23640', 34.0691, 72.6441, 23000)
+insert into [University] values('(051) 111 116 878', 6, 107, 'v good', 'Scholars Ave, H-12, Islamabad, Islamabad Capital Territory', 33.6425, 72.9930, 22000)
 
 select * from University
 
@@ -705,62 +680,3 @@ insert into Review values(18, 5, 3, 'mazedar uni giki')
 insert into Review values(19, 6, 3, 'mazedar uni nust')
 
 select * from Review
-
-SELECT * FROM [User]
-SELECT * FROM [Student]
-SELECT * FROM [Graduate]
-SELECT * FROM [Undergraduate]
-
-SELECT * FROM [User]
-SELECT * FROM [University]
-SELECT * FROM [Faculty]
-SELECT * FROM [Department]
-SELECT * FROM [Alumni]
-SELECT * FROM [Program]
-SELECT * FROM [UndergraduateProgram]
-SELECT * FROM [Department]
-SELECT * FROM [Program]
-
-exec delete_Account '9'
-exec getUser '3'
-
-
-exec viewStudentProfile '7'
---exec viewUniProfile '6'
-exec getUser '3'
-
-exec delete_Account '2'
-
--- test enable_Account
--- GO
--- DECLARE @success int
--- EXECUTE enable_Account
--- @uid = 7
--- SELECT * FROM [User]
--- GO
-
--- test disable_Account
--- GO
--- EXECUTE disable_Account
--- @uid = 7
--- SELECT * FROM [User]
--- GO
-
----- test delete_Account
---GO
---DECLARE @success int
---EXECUTE delete_Account
---@uid = 1,
---@isSuccess = @success
---SELECT * FROM [User]
---GO
-
---SELECT  
---    SERVERPROPERTY('productversion') as 'Product Version', 
---    SERVERPROPERTY('productlevel') as 'Product Level',  
---    SERVERPROPERTY('edition') as 'Product Edition',
---    SERVERPROPERTY('buildclrversion') as 'CLR Version',
---    SERVERPROPERTY('collation') as 'Default Collation',
---    SERVERPROPERTY('instancename') as 'Instance',
---    SERVERPROPERTY('lcid') as 'LCID',
---    SERVERPROPERTY('servername') as 'Server Name'
